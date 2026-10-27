@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.buzizi</groupId>
+    <artifactId>DualPlayerConfrontation</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
+
+    <name>DualPlayerConfrontation</name>
+    <description>双军对峙 - a fast-paced two-player tower duel minigame for Paper</description>
+
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <!-- bump this when the runtime dependency set changes -->
+        <paper.version>1.20.4-R0.1-SNAPSHOT</paper.version>
+        <placeholderapi.version>2.11.6</placeholderapi.version>
+    </properties>
+
+    <build>
+        <defaultGoal>clean package</defaultGoal>
+        <finalName>DualPlayerConfrontation-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <!-- keep the API footprint small so the plugin stays compatible when
+                         recompiled against newer Paper releases -->
+                    <compilerArgs>
+                        <arg>-Xlint:-deprecation</arg>
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <!-- no runtime shading needed: all dependencies are `provided`/`compile-only` -->
+        </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>papermc-repo</id>
+            <url>https://repo.papermc.io/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>placeholderapi-repo</id>
+            <url>https://repo.extendedclip.com/releases/</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.papermc.paper</groupId>
+            <artifactId>paper-api</artifactId>
+            <version>${paper.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- PlaceholderAPI is optional at runtime; we register an expansion only when it is installed -->
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>${placeholderapi.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

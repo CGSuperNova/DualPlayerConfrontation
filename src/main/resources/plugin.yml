@@ -1,0 +1,35 @@
+name: DualPlayerConfrontation
+main: com.buzizi.dualplayerconfrontation.DualPlayerConfrontation
+version: 1.0.0
+description: 双军对峙（DualPlayer Confrontation）双人塔防对抗小游戏：匹配系统、四种轮换玩法、多地图加载、数据统计、星级与PlaceholderAPI支持。
+api-version: '1.20'
+load: POSTWORLD
+authors: [ buzizi ]
+softdepend: [ PlaceholderAPI, Multiverse-Core ]
+
+commands:
+  duel:
+    description: 双军对峙 玩家命令（加入/离开匹配、查看战绩等）
+    usage: /duel <join|leave|stats|help>
+    aliases: [ dp, dual, confrontation ]
+  duelmap:
+    description: 双军对峙 地图管理命令
+    usage: /duelmap <create|remove|setcenter|settower|setspawn|list|info|tp|reload|enable|disable>
+    permission: duel.admin
+  dueladmin:
+    description: 双军对峙 管理命令（强制对局/胜负、结束、重载等）
+    usage: /dueladmin <force|roundwin|roundlose|gamewin|gamelose|end|reload|debug>
+    permission: duel.admin
+
+permissions:
+  duel.play:
+    description: 允许游玩双军对峙小游戏
+    default: true
+  duel.admin:
+    description: 双军对峙 管理员权限
+    default: op
+    children:
+      duel.play: true
+  duel.bypass.queue-limit:
+    description: 忽略匹配队列人数上限
+    default: op

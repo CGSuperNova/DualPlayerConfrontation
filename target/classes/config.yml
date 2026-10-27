@@ -1,0 +1,257 @@
+# ============================================================
+#  DualPlayerConfrontation (双军对峙) 主配置文件
+#  修改后执行 /dueladmin reload 生效
+# ============================================================
+
+debug: false
+
+# ------------------- 匹配系统 -------------------
+match:
+  # 一局获胜所需分数（先获得该分数的玩家胜出）
+  win-score: 7
+  # 每回合开始前的准备时间（秒）
+  round-prepare-seconds: 5
+  # 回合结束后的结算停顿（秒）
+  round-end-seconds: 3
+  # 一回合最长进行时间（秒），超时后开始天降TNT
+  max-round-time: 120
+  # 超时后每隔多少秒在天空随机生成一颗TNT坠落
+  tie-tnt-interval: 5
+  # 超过该时间（秒）后岩浆开始从塔底逐格上升
+  lava-start: 180
+  # 岩浆每上升一格的间隔（秒，取 min~max 之间的随机值）
+  lava-rise-interval-min: 3
+  lava-rise-interval-max: 4
+  # 岩浆覆盖的水平范围在两塔基础上外扩多少格
+  lava-fill-padding: 6
+  queue:
+    # 同一时间最多进行中的对局数（防止多世界同时加载导致卡顿）
+    max-concurrent-games: 4
+    # 是否按星级相近匹配（true 会先按星级排序后相邻配对）
+    star-matchmaking: true
+
+# ------------------- 竞技场副本槽位 -------------------
+# 副本世界名固定为 <name-prefix>-1 .. <name-prefix>-<slots>，
+# 请把这些固定世界名加入 DeluxeHub 等插件按世界名管理的黑名单/禁用列表（如 duel-1 … duel-8）。
+arena:
+  # 副本世界名前缀
+  name-prefix: duel
+  # 固定槽位数量（最大同时进行对局数 = min(本项, match.queue.max-concurrent-games)）
+  slots: 8
+
+# ------------------- 伤害与规则 -------------------
+rules:
+  # 玩家在对局中能受到的伤害来源，其余一律免疫
+  allowed-damage: [ LAVA, FIRE, FIRE_TICK, HOT_FLOOR, FALL, VOID ]
+  # 对局中是否扣除饥饿值
+  food-loss: false
+  # 对局中是否允许自然回血
+  natural-regen: false
+  # 对局中对爆炸的额外处理：任何爆炸物只破坏方块，不造成伤害与冲击
+  explosion-no-damage: true
+  explosion-no-knockback: true
+  # 取消火焰蔓延与方块燃烧（保证回合内可回滚）
+  disable-fire-spread: true
+  # 掉落的物品实体每隔多少tick清理一次（0=不清理）
+  item-cleanup-ticks: 20
+  # 玩家在准备阶段是否无法移动（悬浮锁定）
+  freeze-in-prepare: true
+  # 若其他插件（如 DeluxeHub 的保护）拦截了岩浆/坠落等“本回合致死伤害”，
+  # 本插件会在同一 tick 直接强制玩家死亡，确保回合不会被保护插件卡死
+  force-death-on-cancelled-lethal-damage: true
+
+# ------------------- 对局结束后返回 -------------------
+lobby:
+  # 对局结束后返回的世界（若找不到则使用各世界的出生点）
+  exit-world: world
+  # 也可以指定固定坐标：格式 world:x,y,z,yaw,pitch （留空使用世界出生点）
+  exit-location: ''
+
+# ------------------- 玩法一：火焰弹乒乓球 -------------------
+fireball:
+  # 击中后生成的顺爆TNT爆炸半径（爆炸只会破坏方块）
+  radius: 3
+  # 每个玩家每隔随机 min~max 秒获得一枚火焰弹
+  give-interval-min: 4
+  give-interval-max: 8
+  # 火焰弹初速度（越低越容易用拳头打回去）
+  speed: 0.9
+  # 背包中最多持有的火焰弹数量（0=不限制）
+  cap: 5
+  # 拳头打回时飞向玩家瞄准方向的速度倍率
+  deflect-speed: 1.0
+
+# ------------------- 玩法二：天降好运 -------------------
+tnt-rain:
+  # 弓在背包中的槽位
+  bow-slot: 0
+  # 箭在背包中的槽位
+  arrow-slot: 1
+  grid:
+    # 悬浮TNT相对两塔最高点的最低/最高高度偏移
+    min-height-offset: 6
+    max-height-offset: 18
+    # 悬浮TNT网格间距
+    spacing: 4
+    # 网格长宽（格数，以地图中心为原点向两塔方向延伸）
+    columns: 7
+    rows: 7
+    # 额外随机散布的TNT数量
+    extra-random: 8
+  # 被激活的TNT引信（tick），足够它坠落到塔上
+  fuse-ticks: 60
+  # 每隔多少秒补满天上被射掉的悬浮TNT（0=不补货）
+  regen-interval-seconds: 30
+  # 是否允许箭射中玩家后继续飞行（TNT模式下不会射伤玩家）
+  arrow-passes-players: true
+
+# ------------------- 玩法三：投掷苦力怕 -------------------
+creeper:
+  # 每隔随机 min~max 秒获得一只苦力怕
+  give-interval-min: 4
+  give-interval-max: 8
+  # 苦力怕蛋所在槽位
+  egg-slot: 7
+  # 力度调节器槽位
+  power-slot: 8
+  # 10% 概率获得闪电苦力怕
+  charged-chance: 10
+  # 三档发射力度对应的初速度倍率（两塔间距十几格时可参考默认值）
+  power-velocity: [ 0.9, 1.3, 1.7 ]
+  # 发射时抬升的俯仰补偿（使苦力怕呈抛物线飞向对方塔顶）
+  launch-pitch-offset: 8
+  # 说明：苦力怕的行为与原版一致——可被攻击击退、靠近玩家才自爆；
+  # 与普通苦力怕唯一的区别是爆炸不伤害玩家、无击退、只破坏方块。
+
+# ------------------- 玩法四：超级潜影贝导弹 -------------------
+shulker:
+  # 射击间隔（tick，0.2秒=4tick）
+  fire-interval-ticks: 4
+  # 导弹飞行速度
+  bullet-speed: 1.4
+  # 不同玩家导弹互相吸引的判定半径
+  attract-radius: 10
+  # 互相抵消的判定半径
+  cancel-radius: 2.0
+  # 导弹是否允许穿过玩家（true 则只会被方块挡下）
+  passes-players: true
+  # 玩家左键能打掉飞来的导弹
+  punchable: true
+  # 导弹命中时摧毁的半径（格）。默认约1格半径（中心±1格，视地形约7~19个方块）
+  destroy-radius: 1.2
+
+# ------------------- 玩法五：TNT羽毛球 -------------------
+tnt-badminton:
+  # 小/大击退棒所在槽位
+  paddle-slot: 0
+  paddle-big-slot: 1
+  # 小棒/大棒击出的初速度倍率（大棒更远）
+  small-power: 1.0
+  big-power: 1.9
+  # 击打时仰角补偿（度），让TNT呈抛物线飞向对面塔顶
+  launch-pitch-offset: 15
+  # TNT从出现到自爆的时间（tick，20tick=1秒；默认约5秒）
+  fuse-ticks: 100
+  # TNT爆炸半径（格），只破坏方块
+  explosion-radius: 5
+
+# ------------------- 数据统计 -------------------
+stats:
+  # 自动保存间隔（分钟）
+  autosave-minutes: 5
+
+# ------------------- 星级系统 -------------------
+stars:
+  # 每个星区“每升一星所需经验”。
+  # 经验是累计不清零的：玩家从1星开始，
+  # 星数<100   时每 50  经验升一星
+  # 星数<500   时每 100 经验升一星
+  # 星数<1000  时每 200 经验升一星
+  # 星数>=1000 时每 500 经验升一星
+  xp-per-star: [ 50, 100, 200, 500 ]
+  # 玩家首次游玩的初始星级（从未获得经验时为1星）
+  initial-star: 1
+  # 星级显示格式中的星号符号
+  star-symbol: '⭐'
+
+# ------------------- 经验公式 -------------------
+experience:
+  # 胜利经验 = base * (60 / 本局平均回合秒数) * (win-score - 对方赢的回合数) / win-score + bonus
+  #（win-score 默认 7，见 match.win-score；公式会自动同步）
+  win-base: 50.0
+  win-bonus: 25.0
+  # 失败经验 = lose-per-round * 自己赢下的回合数
+  lose-per-round: 5.0
+  # 平均回合用时下限（秒），防止除以0
+  avg-time-floor: 1.0
+  # 中途因对方退出而判胜时，是否仍按完整公式计算
+  forfeit-full-formula: true
+
+# ------------------- 奖励（对局结束后以命令形式发放） -------------------
+rewards:
+  # console = 以控制台执行；player = 以玩家身份执行
+  run-as: console
+  # 胜利奖励，可用占位符：{player} {loser} {winner} {rounds} {score} {opponent_rounds} {mode}
+  win:
+    - 'say {winner} 在双军对峙中战胜了 {loser}！'
+  # 失败奖励
+  lose: []
+
+# ------------------- 记分板 -------------------
+scoreboard:
+  enabled: true
+  title: '&6&l双军对峙'
+  lines:
+    - '&7&m------------------'
+    - '&f对手: &e{opponent}'
+    - '&f模式: &b{mode}'
+    - '&f回合: &e{round}'
+    - '&7&m------------------'
+    - '&c{you}: &e{score}'
+    - '&a{enemy}: &e{enemy_score}'
+    - '&7目标: &e{win_score} 分'
+    - '&7&m------------------'
+
+# ------------------- 任务系统（每日/每周） -------------------
+quests:
+  # console = 任务奖励命令以控制台执行；player = 以玩家身份执行
+  run-as: console
+  # type 可用：WIN_GAMES / PLAY_GAMES / BLOCKS_DESTROYED / FIREBALLS_SHOT /
+  #          FIREBALLS_HIT / TNTS_ACTIVATED / CREEPERS_THROWN /
+  #          CHARGED_CREEPERS_THROWN / BULLETS_SHOT / BULLETS_HIT
+  # 每日任务（每自然日重置）
+  daily:
+    daily_win2:
+      display: '每日任务：胜利两局'
+      type: WIN_GAMES
+      target: 2
+      reward-xp: 100
+      commands:
+        - 'say {player} 完成了每日任务：胜利两局！'
+    daily_play3:
+      display: '每日任务：参与三局'
+      type: PLAY_GAMES
+      target: 3
+      reward-xp: 60
+      commands: [ ]
+    daily_blocks100:
+      display: '每日任务：破坏一百个方块'
+      type: BLOCKS_DESTROYED
+      target: 100
+      reward-xp: 80
+      commands: [ ]
+  # 每周任务（每周一重置）
+  weekly:
+    weekly_win7:
+      display: '每周任务：胜利七局'
+      type: WIN_GAMES
+      target: 7
+      reward-xp: 400
+      commands:
+        - 'say {player} 完成了每周任务：胜利七局！'
+    weekly_blocks500:
+      display: '每周任务：破坏五百个方块'
+      type: BLOCKS_DESTROYED
+      target: 500
+      reward-xp: 300
+      commands: [ ]
